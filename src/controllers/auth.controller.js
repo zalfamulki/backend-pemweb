@@ -48,19 +48,24 @@ const register = async (req, res) => {
 // POST /api/auth/login
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const { password } = req.body;
+
+    console.log(`[Login Attempt] Email: ${email}`);
 
     const [rows] = await db.execute(
       'SELECT * FROM users WHERE email = ?',
       [email]
     );
     if (rows.length === 0) {
+      console.log(`[Login Failed] User not found: ${email}`);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     const user = rows[0];
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
+      console.log(`[Login Failed] Password mismatch for: ${email}`);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
@@ -84,7 +89,7 @@ const login = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
+    console.error('[Login Error]', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
