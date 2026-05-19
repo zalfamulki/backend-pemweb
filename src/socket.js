@@ -390,7 +390,7 @@ async function canStart(roomId, userId) {
 async function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:3000',
+      origin: true,
       methods: ['GET', 'POST'],
       credentials: true,
     },

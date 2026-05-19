@@ -2,9 +2,17 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// Middleware
+// Trust reverse proxy (Railway, Vercel, Nginx, etc.)
+app.set('trust proxy', 1);
+
+// Robust CORS Middleware supporting Vercel (production & preview branches), Postman, localhost, and mobile apps
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow any origin (Vercel, localhost, etc.)
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());
